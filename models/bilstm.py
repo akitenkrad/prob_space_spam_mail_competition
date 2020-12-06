@@ -19,8 +19,6 @@ class BiLSTM(nn.Module):
     def load_fasttext_embedding(self, weights, word_vocab):
         weight_matrix = load_fasttext_weights(weights, word_vocab)
         self.embedding.weight.data.copy_(torch.tensor(weight_matrix))
-        for p in self.embedding.parameters():
-            p.requires_grad = False
         
     def forward(self, x):
         '''
