@@ -87,7 +87,6 @@ class SpamDataset(Dataset):
         
     def __build_vocab(self):
         vocab_cache = Path(__file__).parent.parent / '__cache__' / 'word_vocab.pickle'
-        import pdb; pdb.set_trace()
         # check cache
         if vocab_cache.exists() and self.no_cache == False:
             pickle_data = pickle.load(open(str(vocab_cache), 'rb'))
