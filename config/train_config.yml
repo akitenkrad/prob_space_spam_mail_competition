@@ -5,7 +5,7 @@ config:
   batch_size: 32
   learning_rate: 0.01
   model: 'bilstm'
-  data_dir: './data'
+  data_path: './data/dev_data.csv'
   max_sent_len: 256
   valid_size: 0.1
   save_dir: './weights'

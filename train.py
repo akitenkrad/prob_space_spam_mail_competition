@@ -29,7 +29,7 @@ def __show_settings(config):
     print(fmt.format('Epochs', config['config']['epochs']))
     print(fmt.format('Batch Size', config['config']['batch_size']))
     print(fmt.format('Model', config['config']['model']))
-    print(fmt.format('Data Dir', config['config']['data_dir']))
+    print(fmt.format('Data Path', config['config']['data_path']))
     print(fmt.format('Max Sentence Length', config['config']['max_sent_len']))
     print(fmt.format('Validation Dataset Size', config['config']['valid_size']))
     print(fmt.format('Learning Rate', config['config']['learning_rate']))
@@ -66,11 +66,11 @@ def run_train(config):
     utils.set_seed(config['config']['seed'])
     
     # load dataset
-    data_dir = config['config']['data_dir']
+    data_path = config['config']['data_path']
     max_length = config['config']['max_sent_len']
     valid_size = config['config']['valid_size']
     phase = config['config']['phase']
-    dataset = SpamDataset(data_dir, max_length=max_length, phase=phase)
+    dataset = SpamDataset(data_path, max_length=max_length, phase=phase)
     train_ds_size = int(len(dataset) * (1 - valid_size))
     valid_ds_size = len(dataset) - train_ds_size
     

@@ -21,12 +21,11 @@ def collate_fn(batch):
    
 class SpamDataset(Dataset):
     
-    def __init__(self, data_dir, max_length=256, phase='train', padding=True, use_pretrained=True, no_cache=False):
+    def __init__(self, data_path, max_length=256, phase='train', padding=True, use_pretrained=True, no_cache=False):
         super().__init__()
         assert phase in ['dev', 'train', 'test']
         
-        self.data_dir = Path(data_dir)
-        self.data_path = self.data_dir / f'{phase}_data.csv'
+        self.data_path = Path(data_path)
         self.max_length = max_length
         self.phase = phase
         self.padding = padding
@@ -41,7 +40,7 @@ class SpamDataset(Dataset):
         self.__read_data()
         
         # prepare fasttext
-        self.fasttext_path = Path(__file__).parent / 'weights' / 'fasttext' / 'wiki-news-300d-1M.vec'
+        self.fasttext_path = Path(__file__).parent.parent / 'weights' / 'fasttext' / 'wiki-news-300d-1M.vec'
         self.fasttext_vocab_size = 0
         self.fasttext_dim = 0
         if self.use_pretrained == True and self.fasttext_path.exists() == False:
@@ -51,10 +50,6 @@ class SpamDataset(Dataset):
         self.word_vocab = Vocabulary()
         self.__build_vocab()
         
-    @property
-    def data_path(self):
-        return self.data_path if self.phase == 'train' else self.test_data_path
-    
     def __read_data(self):
         reader = list(csv.reader([line.replace('\0', '') for line in open(self.data_path)]))
         # skip header
@@ -91,7 +86,8 @@ class SpamDataset(Dataset):
             self.word_vocab.add_token(tokens[0])
         
     def __build_vocab(self):
-        vocab_cache = Path(__file__).parent / '__cache__' / 'word_vocab.pickle'
+        vocab_cache = Path(__file__).parent.parent / '__cache__' / 'word_vocab.pickle'
+        import pdb; pdb.set_trace()
         # check cache
         if vocab_cache.exists() and self.no_cache == False:
             pickle_data = pickle.load(open(str(vocab_cache), 'rb'))
