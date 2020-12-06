@@ -1,0 +1,18 @@
+config:
+  seed: 2357
+  phase: 'dev'
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.01
+  model: 'bilstm'
+  data_dir: './data'
+  max_sent_len: 256
+  valid_size: 0.1
+  save_dir: './weights'
+  log_dir: './logs'
+
+model:
+  bilstm:
+    embedding_dim: 300
+    hidden_size: 150
+    fasttext_weights: './weights/fasttext/wiki-news-300d-1M.vec'
