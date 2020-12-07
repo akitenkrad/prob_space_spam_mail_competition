@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from utils import utils
 from utils.datasets import SpamDataset, collate_fn
 from models.bilstm import BiLSTM
+from models.simple_transformer import TransformerClassification
 
 warnings.filterwarnings('ignore')
 
@@ -43,6 +44,12 @@ def __load_model(config, ds:SpamDataset):
         embedding_dim = config['model']['bilstm']['embedding_dim']
         hidden_size = config['model']['bilstm']['hidden_size']
         model = BiLSTM(ds.word_vocab.vocab_size, embedding_dim, hidden_size)
+        model.load_fasttext_embedding(config['model']['bilstm']['fasttext_weights'], ds.word_vocab)
+        
+    elif target_model == 'simple_transformer':
+        embedding_dim = config['model']['simple_transformer']['embedding_dim']
+        d_model = config['model']['simple_transformer']['d_model']
+        model = TransformerClassification(ds.word_vocab.vocab_size, embedding_dim, d_model, ds.max_length, output_dim=1)
         model.load_fasttext_embedding(config['model']['bilstm']['fasttext_weights'], ds.word_vocab)
         
     else:
@@ -104,8 +111,15 @@ def run_train(config):
                     x = x.to(device)
                     y = y.to(device)
 
-                    out = model(x)
+                    input_pad = dataset.word_vocab.token2idx('<pad>')
+                    input_mask = (x != input_pad)
+                    
+                    if config['config']['model'] == 'simple_transformer':
+                        out, norm_weights_1, norm_weights_2 = model(x, input_mask)
+                    else:
+                        out = model(x)
                     out = out.squeeze()
+                    out = out.clamp(min=0.0, max=1.0)
                     
                     loss = criterion(out, y)
                     loss.backward()

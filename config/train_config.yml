@@ -1,12 +1,12 @@
 config:
   seed: 2357
-  phase: 'dev'
-  epochs: 10
+  phase: 'train'
+  epochs: 100
   batch_size: 32
   learning_rate: 0.01
-  model: 'bilstm'
-  data_path: './data/dev_data.csv'
-  max_sent_len: 256
+  model: 'simple_transformer'
+  data_path: './data/augmented_train_data.csv'
+  max_sent_len: 512 
   valid_size: 0.1
   save_dir: './weights'
   log_dir: './logs'
@@ -15,4 +15,9 @@ model:
   bilstm:
     embedding_dim: 300
     hidden_size: 150
+    fasttext_weights: './weights/fasttext/wiki-news-300d-1M.vec'
+
+  simple_transformer:
+    embedding_dim: 300
+    d_model: 300
     fasttext_weights: './weights/fasttext/wiki-news-300d-1M.vec'
