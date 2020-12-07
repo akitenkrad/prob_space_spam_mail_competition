@@ -122,8 +122,8 @@ def run_train(config):
 
                     # update progress bar
                     train_pbar.update(1)
-                    train_pbar.set_description('<Train> Epoch:{} Loss:{:.6f} Acc:{:.6f}'.format(
-                            epoch + 1, batch_loss, accuracy_score(batch_output, batch_y)))
+                    train_pbar.set_description('<Train> Epoch:{} Loss:{:.6f} Acc:{:.6f} F1:{:.6f}'.format(
+                            epoch + 1, batch_loss, accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output)))
 
                 history.add_train_value(epoch+1, outputs, ys, np.mean(losses))
                 
@@ -143,8 +143,8 @@ def run_train(config):
                     batch_y = y.cpu().numpy()
 
                     valid_pbar.update(1)
-                    valid_pbar.set_description('<Valid> Epoch:{} Loss:{:.6f} Acc:{:.6f}'.format(
-                        epoch + 1, batch_loss, accuracy_score(batch_output, batch_y)))
+                    valid_pbar.set_description('<Valid> Epoch:{} Loss:{:.6f} Acc:{:.6f} F1:{:.6f}'.format(
+                        epoch + 1, batch_loss, accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output)))
 
                     outputs = np.hstack([outputs, batch_output])
                     ys = np.hstack([ys, batch_y])

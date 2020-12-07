@@ -59,7 +59,7 @@ class SpamDataset(Dataset):
         for line in tqdm(reader, desc='Reading {}'.format(self.data_path)):
             idx = int(line[0])
             content = line[1].strip()
-            y = int(line[2]) if self.phase == 'train' else -1
+            y = int(line[2]) if self.phase != 'test' else -1
             
             if content in check_set:
                 continue
@@ -93,6 +93,7 @@ class SpamDataset(Dataset):
             self.word_vocab = pickle_data['word_vocab']
             self.fasttext_vocab_size = pickle_data['fasttext_vocab_size']
             self.fasttext_dim = pickle_data['fasttext_dim']
+            print('Loaded dataset vocabulary from cache:', str(vocab_cache))
             return
         else:
             vocab_cache.parent.mkdir(parents=True, exist_ok=True)

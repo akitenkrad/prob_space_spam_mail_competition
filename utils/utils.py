@@ -32,11 +32,13 @@ class History(object):
         self.train_accuracy = accuracy_score(ys, outputs)
         self.train_precision = precision_score(ys, outputs)
         self.train_recall = recall_score(ys, outputs)
+        self.train_f1 = f1_score(ys, outputs)
         
         self.history.add_scalar('loss', self.loss, epoch)
         self.history.add_scalar('train_accuracy', self.train_accuracy, epoch)
         self.history.add_scalar('train_precision', self.train_precision, epoch)
         self.history.add_scalar('train_recall', self.train_recall, epoch)
+        self.history.add_scalar('train_f1', self.train_f1, epoch)
         
         if self.best_accuracy < self.train_accuracy:
             self.best_accuracy = self.train_accuracy
@@ -48,10 +50,12 @@ class History(object):
         self.test_accuracy = accuracy_score(ys, outputs)
         self.test_precision = precision_score(ys, outputs)
         self.test_recall = recall_score(ys, outputs)
+        self.test_f1 = f1_score(ys, outputs)
         
         self.history.add_scalar('test_accuracy', self.test_accuracy, epoch)
         self.history.add_scalar('test_precision', self.test_precision, epoch)
         self.history.add_scalar('test_recall', self.test_recall, epoch)
+        self.history.add_scalar('test_f1', self.test_f1, epoch)
     
     def description(self):
         desc = 'Epoch:{} Loss:{:.6f} Tran-Acc:{:.6f} Test-Acc:{:.6f}'.format(self.epoch, self.loss, self.train_accuracy, self.test_accuracy)
