@@ -107,7 +107,7 @@ def run_train(config):
                     out = model(x)
                     out = out.squeeze()
                     
-                    loss = criterion(out.type(torch.float32), y.type(torch.float32))
+                    loss = criterion(out, y)
                     loss.backward()
                     optimizer.step()
 

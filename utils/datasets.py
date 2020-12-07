@@ -17,6 +17,7 @@ csv.field_size_limit(sys.maxsize)
 
 def collate_fn(batch):
     idx, tokens, y = [torch.tensor(item) for item in list(zip(*batch))]
+    y = y.type(torch.float32)
     return idx, tokens, y
    
 class SpamDataset(Dataset):

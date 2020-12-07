@@ -6,7 +6,7 @@ from utils.fasttext import load_fasttext_weights
 from utils.utils import weights_init
 
 class BiLSTM(nn.Module):
-    def __init__(self, vocab_size=10000, embedding_dim=300, hidden_size=150, clip_value=5):
+    def __init__(self, vocab_size=10000, embedding_dim=300, hidden_size=150, clip_value=50):
         super().__init__()
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
