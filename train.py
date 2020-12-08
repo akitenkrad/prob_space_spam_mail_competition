@@ -7,7 +7,7 @@ from datetime import datetime
 import click
 import torch
 import numpy as np
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 from utils import utils
@@ -16,6 +16,7 @@ from models.bilstm import BiLSTM
 from models.simple_transformer import TransformerClassification
 
 warnings.filterwarnings('ignore')
+torch.autograd.set_detect_anomaly(True)
 
 def __read_config(config_path):
     with open(config_path) as f:
@@ -43,7 +44,8 @@ def __load_model(config, ds:SpamDataset):
     if target_model == 'bilstm':
         embedding_dim = config['model']['bilstm']['embedding_dim']
         hidden_size = config['model']['bilstm']['hidden_size']
-        model = BiLSTM(ds.word_vocab.vocab_size, embedding_dim, hidden_size)
+        grad_clip_th = config['model']['bilstm']['grad_clip_th']
+        model = BiLSTM(ds.word_vocab.vocab_size, embedding_dim, hidden_size, grad_clip_th)
         model.load_fasttext_embedding(config['model']['bilstm']['fasttext_weights'], ds.word_vocab)
         
     elif target_model == 'simple_transformer':
@@ -84,6 +86,7 @@ def run_train(config):
     # load model
     model = __load_model(config, dataset)
     model = model.to(device)
+    model = model.train()
     
     # train settings
     epochs = config['config']['epochs']
@@ -111,6 +114,8 @@ def run_train(config):
                     x = x.to(device)
                     y = y.to(device)
 
+                    optimizer.zero_grad()
+                    
                     if config['config']['model'] == 'simple_transformer':
                         input_pad = dataset.word_vocab.token2idx('<pad>')
                         input_mask = (x != input_pad)
@@ -128,7 +133,7 @@ def run_train(config):
                     batch_output = out.round().detach().cpu().numpy()
                     batch_y = y.cpu().numpy()
                     batch_loss = float(loss.detach().cpu().numpy())
-
+                        
                     # add logs into history
                     outputs = np.hstack([outputs, batch_output])
                     ys = np.hstack([ys, batch_y])
@@ -136,8 +141,12 @@ def run_train(config):
 
                     # update progress bar
                     train_pbar.update(1)
-                    train_pbar.set_description('<Train> Epoch:{} Loss:{:.6f} Acc:{:.6f} F1:{:.6f}'.format(
-                            epoch + 1, batch_loss, accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output)))
+                    tn, fp, fn, tp = confusion_matrix(batch_y, batch_output).flatten()
+                    train_pbar.set_description('<Train> Epoch:{} Loss:{:.3f} Acc:{:.3f} F1:{:.3f} P:{:.3f} R:{:.3f} (TP,FP,TN,FN):({},{},{},{})'.format(
+                            epoch + 1, batch_loss,
+                            accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output),
+                            precision_score(batch_y, batch_output), recall_score(batch_y, batch_output),
+                            tp, fp, tn, fn))
 
                 history.add_train_value(epoch+1, outputs, ys, np.mean(losses))
                 
@@ -163,8 +172,12 @@ def run_train(config):
                     batch_y = y.cpu().numpy()
 
                     valid_pbar.update(1)
-                    valid_pbar.set_description('<Valid> Epoch:{} Loss:{:.6f} Acc:{:.6f} F1:{:.6f}'.format(
-                        epoch + 1, batch_loss, accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output)))
+                    tn, fp, fn, tp = confusion_matrix(batch_y, batch_output).flatten()
+                    valid_pbar.set_description('<Valid> Epoch:{} Loss:{:.3f} Acc:{:.3f} F1:{:.3f} P:{:.3f} R:{:.3f} (TP,FP,TN,FN):({},{},{},{})'.format(
+                        epoch + 1, batch_loss,
+                        accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output),
+                        precision_score(batch_y, batch_output), recall_score(batch_y, batch_output),
+                        tp, fp, tn, fn))
 
                     outputs = np.hstack([outputs, batch_output])
                     ys = np.hstack([ys, batch_y])

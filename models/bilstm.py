@@ -6,7 +6,7 @@ from utils.fasttext import load_fasttext_weights
 from utils.utils import weights_init
 
 class BiLSTM(nn.Module):
-    def __init__(self, vocab_size=10000, embedding_dim=300, hidden_size=150, clip_value=50):
+    def __init__(self, vocab_size=10000, embedding_dim=300, hidden_size=150, clip_value=100):
         super().__init__()
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
@@ -20,6 +20,7 @@ class BiLSTM(nn.Module):
         self.linear_2 = nn.Linear(16, 1)
         self.sigmoid = nn.Sigmoid()
         
+        self.embedding.weight.requires_grad = False
         for p in list(self.gru.parameters()) + list(self.linear_1.parameters()) + list(self.linear_2.parameters()):
             p.register_hook(lambda grad: grad.data.clamp_(-clip_value, clip_value))
             
