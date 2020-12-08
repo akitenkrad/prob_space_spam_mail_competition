@@ -134,4 +134,6 @@ data
 html
 log
 logs
+log.*
+nohup.out
 weights
