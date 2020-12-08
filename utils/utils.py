@@ -73,7 +73,12 @@ class History(object):
         self.train_precision = precision_score(ys, outputs)
         self.train_recall = recall_score(ys, outputs)
         self.train_f1 = f1_score(ys, outputs)
-        self.train_TN, self.train_FP, self.train_FN, self.train_TP = confusion_matrix(ys, outputs).flatten()
+        cm = confusion_matrix(ys, outputs).flatten()
+        if len(cm) == 1:
+            self.train_TN, self.train_FP, self.train_FN, self.train_TP = -1, -1, -1, -1
+        else:
+            self.train_TN, self.train_FP, self.train_FN, self.train_TP = cm
+            
         
         self.history.add_scalar('loss', self.loss, epoch)
         self.history.add_scalar('train_accuracy', self.train_accuracy, epoch)
@@ -96,7 +101,11 @@ class History(object):
         self.test_precision = precision_score(ys, outputs)
         self.test_recall = recall_score(ys, outputs)
         self.test_f1 = f1_score(ys, outputs)
-        self.test_TN, self.test_FP, self.test_FN, self.test_TP = confusion_matrix(ys, outputs).flatten()
+        cm = confusion_matrix(ys, outputs).flatten()
+        if len(cm) == 1:
+            self.test_TN, self.test_FP, self.test_FN, self.test_TP = -1, -1, -1, -1
+        else:
+            self.test_TN, self.test_FP, self.test_FN, self.test_TP = cm
         
         self.history.add_scalar('test_accuracy', self.test_accuracy, epoch)
         self.history.add_scalar('test_precision', self.test_precision, epoch)

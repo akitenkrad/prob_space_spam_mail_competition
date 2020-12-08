@@ -117,9 +117,14 @@ def run_train(config):
                     ys = np.hstack([ys, batch_y])
                     losses.append(batch_loss)
 
+                    cm = confusion_matrix(batch_y, batch_output).flatten()
+                    if len(cm) == 1:
+                        tn, fp, fn, tp = int(len(cm) / 2.0), 0, 0, int(len(cm) / 2.0)
+                    else:
+                        tn, fp, fn, tp = cm
+                        
                     # update progress bar
                     train_pbar.update(1)
-                    tn, fp, fn, tp = confusion_matrix(batch_y, batch_output).flatten()
                     train_pbar.set_description('<Train> Epoch:{} Loss:{:.3f} Acc:{:.3f} F1:{:.3f} P:{:.3f} R:{:.3f} (TP,FP,TN,FN):({},{},{},{})'.format(
                             epoch + 1, batch_loss,
                             accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output),
@@ -149,8 +154,13 @@ def run_train(config):
                     batch_output = out.round().detach().cpu().numpy()
                     batch_y = y.cpu().numpy()
 
+                    cm = confusion_matrix(batch_y, batch_output).flatten()
+                    if len(cm) == 1:
+                        tn, fp, fn, tp = int(len(cm) / 2.0), 0, 0, int(len(cm) / 2.0)
+                    else:
+                        tn, fp, fn, tp = cm
+                        
                     valid_pbar.update(1)
-                    tn, fp, fn, tp = confusion_matrix(batch_y, batch_output).flatten()
                     valid_pbar.set_description('<Valid> Epoch:{} Loss:{:.3f} Acc:{:.3f} F1:{:.3f} P:{:.3f} R:{:.3f} (TP,FP,TN,FN):({},{},{},{})'.format(
                         epoch + 1, batch_loss,
                         accuracy_score(batch_y, batch_output), f1_score(batch_y, batch_output),
