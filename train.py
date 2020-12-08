@@ -111,13 +111,13 @@ def run_train(config):
                     x = x.to(device)
                     y = y.to(device)
 
-                    input_pad = dataset.word_vocab.token2idx('<pad>')
-                    input_mask = (x != input_pad)
-                    
                     if config['config']['model'] == 'simple_transformer':
+                        input_pad = dataset.word_vocab.token2idx('<pad>')
+                        input_mask = (x != input_pad)
                         out, norm_weights_1, norm_weights_2 = model(x, input_mask)
                     else:
                         out = model(x)
+                        
                     out = out.squeeze()
                     out = out.clamp(min=0.0, max=1.0)
                     
@@ -150,7 +150,13 @@ def run_train(config):
                     x = x.to(device)
                     y = y.to(device)
 
-                    out = model(x)
+                    if config['config']['model'] == 'simple_transformer':
+                        input_pad = dataset.word_vocab.token2idx('<pad>')
+                        input_mask = (x != input_pad)
+                        out, norm_weights_1, norm_weights_2 = model(x, input_mask)
+                    else:
+                        out = model(x)
+                        
                     out = out.squeeze()
 
                     batch_output = out.round().detach().cpu().numpy()
