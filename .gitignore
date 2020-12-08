@@ -137,3 +137,4 @@ logs
 log.*
 nohup.out
 weights
+out

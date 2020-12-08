@@ -60,9 +60,9 @@ class SpamDataset(Dataset):
         for line in tqdm(reader, desc='Reading {}'.format(self.data_path)):
             idx = int(line[0])
             content = line[1].strip()
-            y = int(line[2]) if self.phase != 'test' else -1
+            y = int(line[2]) if len(line) > 2 else -1
             
-            if content in check_set:
+            if self.phase == 'train' and content in check_set:
                 continue
             
             self.data.append({'id': idx, 'content': content, 'y': y})

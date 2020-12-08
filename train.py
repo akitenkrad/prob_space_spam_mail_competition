@@ -1,7 +1,6 @@
 import warnings
 from pathlib import Path
 import yaml
-from configparser import ConfigParser
 from tqdm import tqdm
 from datetime import datetime
 import click
@@ -18,28 +17,7 @@ from models.simple_transformer import TransformerClassification
 warnings.filterwarnings('ignore')
 torch.autograd.set_detect_anomaly(True)
 
-def __read_config(config_path):
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
-    return config
-
-def __show_settings(config):
-    fmt = '{:25s}: {}'
-    print()
-    print('<<< settings >>>')
-    print('='*50)
-    print(fmt.format('Epochs', config['config']['epochs']))
-    print(fmt.format('Batch Size', config['config']['batch_size']))
-    print(fmt.format('Model', config['config']['model']))
-    print(fmt.format('Data Path', config['config']['data_path']))
-    print(fmt.format('Max Sentence Length', config['config']['max_sent_len']))
-    print(fmt.format('Validation Dataset Size', config['config']['valid_size']))
-    print(fmt.format('Learning Rate', config['config']['learning_rate']))
-    print(fmt.format('Save Directory', config['config']['save_dir']))
-    print('='*50)
-    print()
- 
-def __load_model(config, ds:SpamDataset):
+def load_model(config, ds:SpamDataset):
     target_model = config['config']['model']
     if target_model == 'bilstm':
         embedding_dim = config['model']['bilstm']['embedding_dim']
@@ -64,11 +42,11 @@ def cli():
     pass
 
 @cli.command()
-@click.option('--config', type=click.Path(exists=True), help='path to config.ini')
+@click.option('--config', type=click.Path(exists=True), help='path to train_config.yml')
 def run_train(config):
     # read config
-    config = __read_config(config)
-    __show_settings(config)
+    config = utils.read_config(config)
+    utils.show_train_settings(config)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # set seed
@@ -84,7 +62,7 @@ def run_train(config):
     valid_ds_size = len(dataset) - train_ds_size
     
     # load model
-    model = __load_model(config, dataset)
+    model = load_model(config, dataset)
     model = model.to(device)
     model = model.train()
     

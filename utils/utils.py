@@ -1,3 +1,5 @@
+from pathlib import Path
+import yaml
 import torch
 import torch.nn as nn
 import numpy as np
@@ -16,10 +18,46 @@ def weights_init(layer):
         if layer.bias is not None:
             nn.init.constant_(layer.bias, 0.0)
 
+def read_config(config_path):
+    with open(config_path) as f:
+        config = yaml.safe_load(f)
+    return config
+
+def show_train_settings(config):
+    fmt = '{:25s}: {}'
+    print()
+    print('<<< settings >>>')
+    print('='*50)
+    print(fmt.format('Epochs', config['config']['epochs']))
+    print(fmt.format('Batch Size', config['config']['batch_size']))
+    print(fmt.format('Model', config['config']['model']))
+    print(fmt.format('Data Path', config['config']['data_path']))
+    print(fmt.format('Max Sentence Length', config['config']['max_sent_len']))
+    print(fmt.format('Validation Dataset Size', config['config']['valid_size']))
+    print(fmt.format('Learning Rate', config['config']['learning_rate']))
+    print(fmt.format('Save Directory', config['config']['save_dir']))
+    print(fmt.format('Log Directory', config['config']['log_dir']))
+    print('='*50)
+    print()
+
+def show_test_settings(config):
+    fmt = '{:25s}: {}'
+    print()
+    print('<<< settings >>>')
+    print('='*50)
+    print(fmt.format('Batch Size', config['config']['batch_size']))
+    print(fmt.format('Model', config['config']['model']))
+    print(fmt.format('Data Path', config['config']['data_path']))
+    print(fmt.format('Max Sentence Length', config['config']['max_sent_len']))
+    print(fmt.format('Weights', config['config']['weights_path']))
+    print(fmt.format('Output Path', str(Path(config['config']['out_dir']) / 'predicts.csv')))
+    print('='*50)
+    print()
+   
 class History(object):
     def __init__(self, log_dir):
         self.history = SummaryWriter(log_dir=log_dir)
-        self.best_accuracy = -1.0
+        self.best_f1 = -1.0
         self.is_best = False
         self.epoch = 0
         self.loss = -1
@@ -47,8 +85,8 @@ class History(object):
         self.history.add_scalar('train_FN', self.train_FN, epoch)
         self.history.add_scalar('train_TP', self.train_TP, epoch)
         
-        if self.best_accuracy < self.train_accuracy:
-            self.best_accuracy = self.train_accuracy
+        if self.best_f1 < self.train_f1:
+            self.best_f1 = self.train_f1
             self.is_best = True
         else:
             self.is_best = False
